@@ -1,8 +1,8 @@
-from inspect import signature
-from signal import siginterrupt
 from Transaction import Transaction
 from Wallet import Wallet
 from TransactionPool import TransactionPool
+from Block import Block
+import pprint
 
 if __name__ == '__main__':
     sender = 'sender'
@@ -25,10 +25,12 @@ if __name__ == '__main__':
     if pool.transactionExists(transaction) == False:
         pool.addTransaction(transaction)
 
-    if pool.transactionExists(transaction) == False:
-        pool.addTransaction(transaction)
+    block = wallet.createBlock(pool.transactions, 'lasthash', 1)
+    signatureValid = Wallet.signatureValid(block.payload(), block.signature, fradulantWallet.publicKeyString())
+    print(signatureValid)
+    # pprint.pprint(block.toJson())
 
-    print(pool.transactions)
+    
 
 
 
