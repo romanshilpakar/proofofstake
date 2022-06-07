@@ -1,5 +1,6 @@
 import uuid
 import time
+import copy
 
 class Transaction():
 
@@ -14,3 +15,17 @@ class Transaction():
 
     def toJson(self):
         return self.__dict__
+
+    def sign(self, signature):
+        self.signature = signature
+
+    def payload(self):
+        jsonRepresentation = copy.deepcopy(self.toJson())
+        jsonRepresentation['signature'] = ''
+        return jsonRepresentation
+
+    def equals(self, transaction):
+        if self.id == transaction.id:
+            return True
+        else:
+            return False
