@@ -1,14 +1,15 @@
 import time
 import copy
 
+
 class Block():
 
     def __init__(self, transactions, lastHash, forger, blockCount):
+        self.blockCount = blockCount
         self.transactions = transactions
         self.lastHash = lastHash
-        self.forger = forger
-        self.blockCount = blockCount
         self.timestamp = time.time()
+        self.forger = forger
         self.signature = ''
 
     @staticmethod
@@ -19,15 +20,15 @@ class Block():
 
     def toJson(self):
         data = {}
-        data['lastHash'] = self.lastHash
-        data['forger'] = self.forger
         data['blockCount'] = self.blockCount
-        data['timestamp'] = self.timestamp
+        data['lastHash'] = self.lastHash
         data['signature'] = self.signature
-        jsonTransaction = []
+        data['forger'] = self.forger
+        data['timestamp'] = self.timestamp
+        jsonTransactions = []
         for transaction in self.transactions:
-            jsonTransaction.append(transaction.toJson())
-        data['transaction'] = jsonTransaction
+            jsonTransactions.append(transaction.toJson())
+        data['transactions'] = jsonTransactions
         return data
 
     def payload(self):

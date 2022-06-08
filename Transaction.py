@@ -2,14 +2,15 @@ import uuid
 import time
 import copy
 
+
 class Transaction():
 
-    def __init__(self,senderPublicKey, receiverPublickey, amount, type):
+    def __init__(self, senderPublicKey, receiverPublicKey, amount, type):
         self.senderPublicKey = senderPublicKey
-        self.receiverPublicKey = receiverPublickey
+        self.receiverPublicKey = receiverPublicKey
         self.amount = amount
         self.type = type
-        self.id = uuid.uuid1().hex
+        self.id = (uuid.uuid1()).hex
         self.timestamp = time.time()
         self.signature = ''
 
