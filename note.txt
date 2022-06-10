@@ -1,0 +1,4 @@
+python3 Main.py localhost 10001 5000 keys/genesisPrivateKey.pem
+python3 Main.py localhost 10002 5001
+python3 Main.py localhost 10003 5002
+python3 Interaction.py

@@ -1,6 +1,7 @@
 from Block import Block
 from BlockchainUtils import BlockchainUtils
 from AccountModel import AccountModel
+from ProofOfStake import ProofOfStake
 
 
 class Blockchain():
@@ -8,6 +9,7 @@ class Blockchain():
     def __init__(self):
         self.blocks = [Block.genesis()]
         self.accountModel = AccountModel()
+        self.pos = ProofOfStake()
 
     def addBlock(self, block):
         self.executeTransactions(block.transactions)
@@ -59,8 +61,52 @@ class Blockchain():
             self.executeTransaction(transaction)
 
     def executeTransaction(self, transaction):
-        sender = transaction.senderPublicKey
-        receiver = transaction.receiverPublicKey
-        amount = transaction.amount
-        self.accountModel.updateBalance(sender, -amount)
-        self.accountModel.updateBalance(receiver, amount)
+        if transaction.type == 'STAKE':
+            sender = transaction.senderPublicKey
+            receiver = transaction.receiverPublicKey
+            if sender == receiver:
+                amount = transaction.amount
+                self.pos.update(sender, amount)
+                self.accountModel.updateBalance(sender, -amount)
+        else:
+            sender = transaction.senderPublicKey
+            receiver = transaction.receiverPublicKey
+            amount = transaction.amount
+            self.accountModel.updateBalance(sender, -amount)
+            self.accountModel.updateBalance(receiver, amount)
+
+    def nextForger(self):
+        lastBlockHash = BlockchainUtils.hash(
+            self.blocks[-1].payload()).hexdigest()
+        nextForger = self.pos.forger(lastBlockHash)
+        return nextForger
+
+    def createBlock(self, transactionsFromPool, forgerWallet):
+        coveredTransactions = self.getCoveredTransactionSet(
+            transactionsFromPool)
+        self.executeTransactions(coveredTransactions)
+        newBlock = forgerWallet.createBlock(
+            coveredTransactions, BlockchainUtils.hash(self.blocks[-1].payload()).hexdigest(), len(self.blocks))
+        self.blocks.append(newBlock)
+        return newBlock
+
+    def transactionExists(self, transaction):
+        for block in self.blocks:
+            for blockTransaction in block.transactions:
+                if transaction.equals(blockTransaction):
+                    return True
+        return False
+
+    def forgerValid(self, block):
+        forgerPublicKey = self.pos.forger(block.lastHash)
+        proposedBlockForger = block.forger
+        if forgerPublicKey == proposedBlockForger:
+            return True
+        else:
+            return False
+
+    def transactionsValid(self, transactions):
+        coveredTransactions = self.getCoveredTransactionSet(transactions)
+        if len(coveredTransactions) == len(transactions):
+            return True
+        return False
